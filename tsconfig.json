@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "target": "es2022",
+        "module": "nodenext",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "moduleResolution": "nodenext",
+        "rootDir": ".",
+        "outDir": "build",
+        "forceConsistentCasingInFileNames": true,
+    },
+    "include": [
+        "src",
+        "tests"
+    ],
+    "exclude": [
+        "node_modules",
+        "build"
+    ]
+}
