@@ -5,59 +5,63 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-    {
-        ignores: ['**/build/**', '**/tmp/**', '**/coverage/**'],
+  {
+    ignores: ['**/build/**', '**/tmp/**', '**/coverage/**'],
+  },
+  eslint.configs.recommended,
+  eslintConfigPrettier,
+  {
+    extends: [...tseslint.configs.recommended],
+
+    files: ['**/*.ts', '**/*.mts'],
+
+    plugins: {
+      '@typescript-eslint': tseslint.plugin,
     },
-    eslint.configs.recommended,
-    eslintConfigPrettier,
-    {
-        extends: [...tseslint.configs.recommended],
 
-        files: ['**/*.ts', '**/*.mts'],
-
-        plugins: {
-            '@typescript-eslint': tseslint.plugin,
-        },
-
-        rules: {
-            '@typescript-eslint/explicit-function-return-type': 'warn',
-        },
-
-        languageOptions: {
-            parser: tseslint.parser,
-            ecmaVersion: 2020,
-            sourceType: 'module',
-
-            globals: {
-                ...globals.node,
-            },
-
-            parserOptions: {
-                project: './tsconfig.json',
-            },
-        },
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'warn',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        { argsIgnorePattern: '^next$' },
+      ],
     },
-    {
-        files: ['__tests__/**'],
 
-        plugins: {
-            vitest,
-        },
+    languageOptions: {
+      parser: tseslint.parser,
+      ecmaVersion: 2020,
+      sourceType: 'module',
 
-        rules: {
-            ...vitest.configs.recommended.rules,
-        },
+      globals: {
+        ...globals.node,
+      },
 
-        settings: {
-            vitest: {
-                typecheck: true,
-            },
-        },
-
-        languageOptions: {
-            globals: {
-                ...vitest.environments.env.globals,
-            },
-        },
+      parserOptions: {
+        project: './tsconfig.json',
+      },
     },
+  },
+  {
+    files: ['__tests__/**'],
+
+    plugins: {
+      vitest,
+    },
+
+    rules: {
+      ...vitest.configs.recommended.rules,
+    },
+
+    settings: {
+      vitest: {
+        typecheck: true,
+      },
+    },
+
+    languageOptions: {
+      globals: {
+        ...vitest.environments.env.globals,
+      },
+    },
+  },
 );
