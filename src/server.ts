@@ -15,9 +15,9 @@ type EnvConfig = AuthConfig;
 
 function getEnvConfig(): EnvConfig {
   const config: AuthConfig = {
-    GITHUB_APP_ID: process.env.GITHUB_APP_ID,
-    GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY,
-    GITHUB_INSTALLATION_ID: process.env.GITHUB_INSTALLATION_ID,
+    GITHUB_APP_ID: process.env.GITHUB_APP_ID as string,
+    GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY as string,
+    GITHUB_INSTALLATION_ID: process.env.GITHUB_INSTALLATION_ID as string,
   };
 
   const missing = Object.entries(config)
