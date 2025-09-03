@@ -9,15 +9,15 @@ import { Server } from 'http';
 dotenv.config();
 
 const app = express();
-const PORT = 8080;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
 
 type EnvConfig = AuthConfig;
 
 function getEnvConfig(): EnvConfig {
   const config: AuthConfig = {
-    GITHUB_APP_ID: process.env.GITHUB_APP_ID!,
-    GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY!,
-    GITHUB_INSTALLATION_ID: process.env.GITHUB_INSTALLATION_ID!,
+    GITHUB_APP_ID: process.env.GITHUB_APP_ID,
+    GITHUB_PRIVATE_KEY: process.env.GITHUB_PRIVATE_KEY,
+    GITHUB_INSTALLATION_ID: process.env.GITHUB_INSTALLATION_ID,
   };
 
   const missing = Object.entries(config)
@@ -38,11 +38,15 @@ app.use(cors());
 app.get('/api/prs', async (_req, res) => {
   try {
     const config = getEnvConfig();
-    const prs = await fetchAllDependabotPRs(config, 'derynLeigh', [
-      'techronymsService',
-      'techronyms-user-service',
-      'dependabot-pr-summariser',
-    ]);
+    const owner = process.env.GITHUB_OWNER || 'derynLeigh';
+    const repos = process.env.GITHUB_REPOS
+      ? process.env.GITHUB_REPOS.split(',').map(r => r.trim())
+      : [
+          'techronymsService',
+          'techronyms-user-service',
+          'dependabot-pr-summariser',
+        ];
+    const prs = await fetchAllDependabotPRs(config, owner, repos);
     res.json({
       data: prs,
       generatedAt: new Date().toISOString(),
@@ -62,7 +66,7 @@ export function startServer(): Server {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 }
-
+// Server will only start if not running in test environment, to allow test frameworks to import the app without side effects.
 if (process.env.NODE_ENV !== 'test') {
   startServer();
 }
