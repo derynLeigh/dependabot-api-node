@@ -27,6 +27,4 @@ describe('DTO transformation', () => {
     expect(result.id).toBe(incompleteMockPR.id);
     expect(result.repo).toBe('');
   });
-
 });
-

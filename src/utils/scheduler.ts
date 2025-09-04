@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import fs from 'fs';
-import type { PRdto } from '../types/ui-pr.js';
+import type { PRdto } from '../types/githubTypes.js';
 import type { SchedulerConfig } from '../types/schedulerTypes.js';
 import { fetchAllDependabotPRs } from './gitHubHelpers.js';
 
