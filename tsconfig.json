@@ -10,10 +10,11 @@
         "rootDir": ".",
         "outDir": "build",
         "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
+        "strict": true
     },
     "include": [
         "src",
-        "tests"
     ],
     "exclude": [
         "node_modules",

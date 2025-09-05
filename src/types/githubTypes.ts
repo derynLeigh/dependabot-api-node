@@ -5,3 +5,12 @@ type ListPullsResponse =
 type GitHubPR = ListPullsResponse['data'][0];
 
 export type DependabotPR = GitHubPR;
+
+export interface PRdto {
+  id: number;
+  title: string;
+  url: string;
+  repo: string;
+  createdAt: string;
+  updatedAt: string;
+}
