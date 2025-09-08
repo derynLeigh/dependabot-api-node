@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
 import type { AuthConfig } from '../types/auth.js';
-import type { PRdto } from '../types/ui-pr.js';
+import type { PRdto } from '../types/githubTypes.js';
 import type { DependabotPR } from '../types/githubTypes.js';
 
 export function toPRdto(pr: DependabotPR): PRdto {
