@@ -22,18 +22,14 @@ describe('API Endpoints', () => {
 
   describe('GET /api/prs', () => {
     it('returns a list of Dependabot PRs', async () => {
-      // Create mock PR DTOs (this is what fetchAllDependabotPRs returns)
       const mockPRs: PRdto[] = [
-        createMockPRdto(), // Use your PRdto helper function
+        createMockPRdto(),
       ];
 
-      // Mock the GitHub API to return PRs
       vi.mocked(gitHubHelpers.fetchAllDependabotPRs).mockResolvedValue(mockPRs);
 
-      // Make request to the endpoint
       const response = await request(app).get('/api/prs');
 
-      // The API should transform the PRs into a response body with count and generatedAt
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('count', 1);
       expect(response.body).toHaveProperty('data');
