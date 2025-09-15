@@ -1,8 +1,6 @@
-import { Octokit } from '@octokit/rest';
-import { createAppAuth } from '@octokit/auth-app';
-import type { AuthConfig } from '../types/auth.js';
-import type { PRdto } from '../types/githubTypes.js';
-import type { DependabotPR } from '../types/githubTypes.js';
+import type { DependabotPR, PRdto } from "../types/githubTypes.js";
+import type { AuthConfig } from "../types/auth.js";
+import { createAppAuth } from "@octokit/auth-app";
 
 export function toPRdto(pr: DependabotPR): PRdto {
   return {
@@ -16,55 +14,20 @@ export function toPRdto(pr: DependabotPR): PRdto {
 }
 
 export async function getGitHubToken(config: AuthConfig): Promise<string> {
+  console.log('createAppAuth:', createAppAuth);
   const auth = createAppAuth({
     appId: config.GITHUB_APP_ID,
     privateKey: config.GITHUB_PRIVATE_KEY,
   });
+  // Debug logs to inspect the auth object
+  console.log('auth type:', typeof auth); 
+  console.log('auth value:', auth); 
+  console.log('auth is function?', typeof auth === 'function');
 
   const { token } = await auth({
-    type: 'installation',
+    type: "installation",
     installationId: config.GITHUB_INSTALLATION_ID,
   });
-
+  
   return token;
 }
-
-export async function fetchDependabotPRs(
-  token: string,
-  owner: string,
-  repo: string
-): Promise<DependabotPR[]> {
-  const octokit = new Octokit({ auth: token });
-
-  const { data } = await octokit.pulls.list({
-    owner,
-    repo,
-    state: 'open',
-
-  });
-  return data.filter(
-    (pr): pr is DependabotPR => pr.user?.login === 'dependabot[bot]'
-  );
-}
-
-export async function fetchAllDependabotPRs(
-  config: AuthConfig,
-  owner: string,
-  repos: string[],
-): Promise<PRdto[]> {
-  const token = await getGitHubToken(config);
-
-  const results = await Promise.all(
-    repos.map(async (repo) => {
-      try {
-        const prs = await fetchDependabotPRs(token, owner, repo);
-        return prs.map(toPRdto);
-      } catch (err) {
-        console.error(`Failed to fetch PRs from repo "${repo}":`, err);
-        return [] as PRdto[];
-      }
-    }),
-  );
-  return results.flat();
-}
-
