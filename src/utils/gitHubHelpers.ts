@@ -1,4 +1,4 @@
-import type { DependabotPR, PRdto } from "../types/githubTypes.js";
+import type { DependabotPR, PRdto, FetchAllResult, RepoError } from "../types/githubTypes.js";
 import type { AuthConfig } from "../types/auth.js";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
@@ -42,4 +42,55 @@ export async function fetchDependabotPRs(
   });
 
   return data.filter(pr => pr.user?.login === 'dependabot[bot]');
+}
+
+export async function fetchAllDependabotPRs(
+  config: AuthConfig,
+  owner: string,
+  repos: string[],
+  // Add optional dependency injection for testing
+  deps?: {
+    getToken?: (config: AuthConfig) => Promise<string>;
+    fetchPRs?: (token: string, owner: string, repo: string) => Promise<DependabotPR[]>;
+  }
+): Promise<FetchAllResult> {
+  // Use injected dependencies or defaults
+  const getToken = deps?.getToken || getGitHubToken;
+  const fetchPRs = deps?.fetchPRs || fetchDependabotPRs;
+
+  const token = await getToken(config);
+  const errors: RepoError[] = [];
+  const allPRs: PRdto[] = [];
+
+  const results = await Promise.allSettled(
+    repos.map(async (repo) => {
+      try {
+        const prs = await fetchPRs(token, owner, repo);
+        return prs.map(toPRdto);
+      } catch (err) {
+        const error = err instanceof Error ? err.message : 'Unknown error occurred';
+        console.error(`Failed to fetch PRs from repo "${repo}":`, err);
+        
+        errors.push({
+          repo,
+          error,
+        });
+        
+        return [] as PRdto[];
+      }
+    }),
+  );
+
+  // Collect successful results
+  results.forEach((result) => {
+    if (result.status === 'fulfilled') {
+      allPRs.push(...result.value);
+    }
+  });
+
+  return {
+    data: allPRs,
+    errors,
+    count: allPRs.length,
+  };
 }
