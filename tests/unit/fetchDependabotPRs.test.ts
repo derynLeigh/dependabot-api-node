@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createMockPR, createMockUser } from '../utils/helperFunctions.js';
+import { createTestMockPR, createTestMockUser } from '../utils/helperFunctions.js';
 
 describe('fetchDependabotPRs', () => {
   beforeEach(() => {
@@ -10,32 +10,30 @@ describe('fetchDependabotPRs', () => {
   it('should fetch and filter Dependabot PRs', async () => {
     // Arrange
     const mockPRs = [
-      createMockPR({ 
+      createTestMockPR({ 
         id: 1, 
         title: 'Bump package version',
-        user: createMockUser({ login: 'dependabot[bot]', id: 1, type: 'Bot' as const })
+        user: createTestMockUser({ login: 'dependabot[bot]', type: 'Bot' })
       }),
-      createMockPR({ 
+      createTestMockPR({ 
         id: 2, 
         title: 'Feature update',
-        user: createMockUser({ login: 'regular-user', id: 2, type: 'User' as const })
+        user: createTestMockUser({ login: 'regular-user', type: 'User' }) 
       }),
-      createMockPR({ 
+      createTestMockPR({ 
         id: 3, 
         title: 'Security update',
-        user: createMockUser({ login: 'dependabot[bot]', id: 1, type: 'Bot' as const })
+        user: createTestMockUser({ login: 'dependabot[bot]', type: 'Bot' })
       })
     ];
     
     const mockList = vi.fn().mockResolvedValue({ data: mockPRs });
     const mockOctokit = { pulls: { list: mockList } };
 
-    // Mock Octokit constructor
     vi.doMock('@octokit/rest', () => ({
       Octokit: vi.fn().mockImplementation(() => mockOctokit)
     }));
 
-    // Import after mocking
     const { fetchDependabotPRs } = await import('../../src/utils/gitHubHelpers.js');
 
     // Act
@@ -48,7 +46,6 @@ describe('fetchDependabotPRs', () => {
       state: 'open'
     });
     
-    // Should only return the Dependabot PRs (id: 1 and 3)
     expect(result).toHaveLength(2);
     expect(result[0].id).toBe(1);
     expect(result[1].id).toBe(3);

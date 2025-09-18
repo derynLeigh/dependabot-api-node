@@ -1,4 +1,4 @@
-import type { DependabotPR, PRdto, FetchAllResult, RepoError } from "../types/githubTypes.js";
+import type { DependabotPR, PRdto, FetchAllResult, RepoError } from '../types/githubTypes.js'
 import type { AuthConfig } from "../types/auth.js";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";

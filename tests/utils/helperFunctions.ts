@@ -1,41 +1,35 @@
-import type { DependabotPR } from '../../src/types/githubTypes.js';
+import type { DependabotPR as TestDependabotPR, GitHubUser } from './testTypes.js';
 
 type MockPROverrides = {
-  [K in keyof DependabotPR]?: K extends 'head' 
-    ? DependabotPR[K] | null  // Allow null specifically for head
-    : DependabotPR[K];
+  [K in keyof TestDependabotPR]?: K extends 'head' 
+    ? TestDependabotPR[K] | null  // Allow null specifically for head
+    : TestDependabotPR[K];
 };
 
-type GitHubUser = NonNullable<DependabotPR['user']>;
-
-export function createMockUser(overrides: Partial<GitHubUser> = {}): GitHubUser {
+export function createTestMockUser(overrides: Partial<GitHubUser> = {}): GitHubUser {
   return {
-    name: null,
-    email: null,
     login: 'dependabot[bot]',
     id: 49699333,
-    node_id: 'MDM6Qm90NDk2OTkzMzM=',
-    avatar_url: 'https://avatars.githubusercontent.com/in/29110?v=4',
-    gravatar_id: null,
-    url: 'https://api.github.com/users/dependabot%5Bbot%5D',
-    html_url: 'https://github.com/apps/dependabot',
-    followers_url: 'https://api.github.com/users/dependabot%5Bbot%5D/followers',
-    following_url: 'https://api.github.com/users/dependabot%5Bbot%5D/following{/other_user}',
-    gists_url: 'https://api.github.com/users/dependabot%5Bbot%5D/gists{/gist_id}',
-    starred_url: 'https://api.github.com/users/dependabot%5Bbot%5D/starred{/owner}{/repo}',
-    subscriptions_url: 'https://api.github.com/users/dependabot%5Bbot%5D/subscriptions',
-    organizations_url: 'https://api.github.com/users/dependabot%5Bbot%5D/orgs',
-    repos_url: 'https://api.github.com/users/dependabot%5Bbot%5D/repos',
-    events_url: 'https://api.github.com/users/dependabot%5Bbot%5D/events{/privacy}',
-    received_events_url: 'https://api.github.com/users/dependabot%5Bbot%5D/received_events',
-    type: 'Bot' as const,
-    site_admin: false,
+    type: 'Bot',
+    ...overrides
+  };
+}
+
+export function createTestMockPR(overrides: Partial<TestDependabotPR> = {}): TestDependabotPR {
+  return {
+    id: 1,
+    title: 'Mock PR',
+    html_url: 'https://example.com/pr/1',
+    user: createTestMockUser(),
+    head: { repo: { name: 'mock-repo' } },
+    created_at: '2025-09-01T10:00:00Z',
+    updated_at: '2025-09-01T11:00:00Z',
     ...overrides
   };
 }
 
 export function createMockPR(
-  overrides: MockPROverrides = {}): DependabotPR {
+  overrides: MockPROverrides = {}): TestDependabotPR {
   const baseDefaults = {
     id: 1,
     title: 'Mock PR',
@@ -45,7 +39,7 @@ export function createMockPR(
     number: 1,
     state: 'open' as const,
     locked: false,
-    user: createMockUser(),
+    user: createTestMockUser(),
     body: 'Mock PR body',
     created_at: '2025-09-01T10:00:00Z',
     updated_at: '2025-09-01T11:00:00Z',
@@ -112,5 +106,5 @@ export function createMockPR(
   return {
     ...baseDefaults,
     ...overrides
-  } as DependabotPR;
+  } as TestDependabotPR;
 }
