@@ -1,6 +1,6 @@
 // tests/unit/fetchAllDependabotPRs.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { AuthConfig } from '../utils/testTypes';
+import type { AuthConfig } from '../types/testTypes';
 import { fetchAllDependabotPRs } from '../utils/testImplementations';
 import { createTestMockPR } from '../utils/helperFunctions';
 
@@ -75,4 +75,51 @@ describe('fetchAllDependabotPRs', () => {
 
     consoleSpy.mockRestore();
   });
+
+  it('should handle repositories with no PRs', async () => {
+  const mockGetToken = vi.fn().mockResolvedValue('test-token');
+  const mockFetchPRs = vi.fn()
+    .mockResolvedValueOnce([])
+    .mockResolvedValueOnce([createTestMockPR({ id: 2, title: 'Repo2 PR' })]);
+
+  const result = await fetchAllDependabotPRs(
+    mockConfig, 
+    'owner', 
+    ['repo1', 'repo2'],
+    mockGetToken,
+    mockFetchPRs
+  );
+
+  expect(mockFetchPRs).toHaveBeenCalledTimes(2);
+  
+  expect(result).toEqual({
+    data: [
+      expect.objectContaining({ id: 2, title: 'Repo2 PR' })
+    ],
+    errors: [],
+    count: 1
+  });
 });
+
+it('should handle all repositories having no PRs', async () => {
+  const mockGetToken = vi.fn().mockResolvedValue('test-token');
+  const mockFetchPRs = vi.fn()
+    .mockResolvedValueOnce([])
+    .mockResolvedValueOnce([]);
+
+  const result = await fetchAllDependabotPRs(
+    mockConfig, 
+    'owner', 
+    ['repo1', 'repo2'],
+    mockGetToken,
+    mockFetchPRs
+  );
+
+  expect(result).toEqual({
+    data: [],
+    errors: [],
+    count: 0
+  });
+});
+});
+

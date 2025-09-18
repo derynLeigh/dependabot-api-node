@@ -1,4 +1,4 @@
-import type { DependabotPR as TestDependabotPR, GitHubUser } from './testTypes.js';
+import type { DependabotPR as TestDependabotPR, GitHubUser } from '../types/testTypes.js';
 
 type MockPROverrides = {
   [K in keyof TestDependabotPR]?: K extends 'head' 

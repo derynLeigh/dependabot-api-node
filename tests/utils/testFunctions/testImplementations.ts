@@ -1,4 +1,4 @@
-import type { AuthConfig, RepoError, FetchAllResult, PRdto, DependabotPR } from './testTypes.js';
+import type { AuthConfig, RepoError, FetchAllResult, PRdto, DependabotPR } from '../types/testTypes.js';
 
 export function toPRdto(pr: DependabotPR): PRdto {
   return {

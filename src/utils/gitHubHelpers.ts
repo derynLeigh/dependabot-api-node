@@ -1,7 +1,8 @@
-import type { DependabotPR, PRdto, FetchAllResult, RepoError } from '../types/githubTypes.js'
+
 import type { AuthConfig } from "../types/auth.js";
 import { createAppAuth } from "@octokit/auth-app";
 import { Octokit } from "@octokit/rest";
+import { DependabotPR, PRdto, FetchAllResult, RepoError } from "../types/gitHubTypes.js";
 
 export function toPRdto(pr: DependabotPR): PRdto {
   return {
@@ -48,7 +49,7 @@ export async function fetchAllDependabotPRs(
   config: AuthConfig,
   owner: string,
   repos: string[],
-  // Add optional dependency injection for testing
+  // Optional dependency injection for testing
   deps?: {
     getToken?: (config: AuthConfig) => Promise<string>;
     fetchPRs?: (token: string, owner: string, repo: string) => Promise<DependabotPR[]>;
