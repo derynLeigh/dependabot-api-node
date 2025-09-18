@@ -8,7 +8,7 @@ export interface DependabotPR {
   id: number;
   title: string;
   html_url: string;
-  user?: GitHubUser | null; // Add this for filtering logic
+  user?: GitHubUser | null;
   head?: {
     repo?: {
       name: string;

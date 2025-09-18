@@ -1,8 +1,7 @@
-// tests/unit/fetchAllDependabotPRs.test.ts
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { AuthConfig } from '../types/testTypes';
-import { fetchAllDependabotPRs } from '../utils/testImplementations';
-import { createTestMockPR } from '../utils/helperFunctions';
+import type { AuthConfig } from '../utils/types/testTypes';
+import { fetchAllDependabotPRs } from '../utils/testFunctions/testImplementations'
+import { createTestMockPR } from '../utils/testFunctions/helperFunctions';
 
 describe('fetchAllDependabotPRs', () => {
   const mockConfig: AuthConfig = {

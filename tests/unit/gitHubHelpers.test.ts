@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { toPRdto } from '../../src/utils/gitHubHelpers.js';
-import { createMockPR } from '../utils/helperFunctions.js';
+import { toPRdto } from '../utils/testFunctions/testImplementations.js';
+import { createTestMockPR } from '../utils/testFunctions/helperFunctions.js'
 
 describe('toPRdto', () => {
   it('should transform a complete GitHub PR to PRdto format', () => {
-    const githubPR = createMockPR({
+    const githubPR = createTestMockPR({
       id: 123,
       title: 'Bump typescript from 5.0.0 to 5.1.0',
       html_url: 'https://github.com/owner/repo/pull/123',
@@ -23,7 +23,7 @@ describe('toPRdto', () => {
   });
 
   it('should handle missing repo data gracefully', () => {
-    const githubPR = createMockPR({
+    const githubPR = createTestMockPR({
       id: 456,
       title: 'Update dependency',
       head: null

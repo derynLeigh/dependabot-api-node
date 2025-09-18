@@ -49,24 +49,15 @@ export async function fetchAllDependabotPRs(
   config: AuthConfig,
   owner: string,
   repos: string[],
-  // Optional dependency injection for testing
-  deps?: {
-    getToken?: (config: AuthConfig) => Promise<string>;
-    fetchPRs?: (token: string, owner: string, repo: string) => Promise<DependabotPR[]>;
-  }
 ): Promise<FetchAllResult> {
-  // Use injected dependencies or defaults
-  const getToken = deps?.getToken || getGitHubToken;
-  const fetchPRs = deps?.fetchPRs || fetchDependabotPRs;
-
-  const token = await getToken(config);
+  const token = await getGitHubToken(config);
   const errors: RepoError[] = [];
   const allPRs: PRdto[] = [];
 
   const results = await Promise.allSettled(
     repos.map(async (repo) => {
       try {
-        const prs = await fetchPRs(token, owner, repo);
+        const prs = await fetchDependabotPRs(token, owner, repo);
         return prs.map(toPRdto);
       } catch (err) {
         const error = err instanceof Error ? err.message : 'Unknown error occurred';
@@ -82,7 +73,6 @@ export async function fetchAllDependabotPRs(
     }),
   );
 
-  // Collect successful results
   results.forEach((result) => {
     if (result.status === 'fulfilled') {
       allPRs.push(...result.value);
