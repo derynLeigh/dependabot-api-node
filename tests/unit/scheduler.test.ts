@@ -205,7 +205,7 @@ describe('createScheduler', () => {
   it('should create a scheduler with the correct cron schedule', async () => {
     const mockSchedule = vi.fn().mockReturnValue({
       start: vi.fn(),
-      stop: vi.fn(), 
+      stop: vi.fn(),
       destroy: vi.fn()
     });
 
@@ -235,52 +235,65 @@ describe('createScheduler', () => {
   });
 
   it('should execute the scheduled task when cron triggers', async () => {
+    // Reset modules first
+    vi.resetModules();
+
     let cronCallback: (() => Promise<void>) | undefined;
-    
+
     const mockTask = {
       start: vi.fn(),
       stop: vi.fn(),
-      destroy: vi.fn()
+      destroy: vi.fn(),
     };
-    
-    const mockSchedule = vi.fn().mockImplementation((schedule: string, callback: () => Promise<void>) => {
-      cronCallback = callback;
-      return mockTask;
-    });
 
-    vi.doMock('node-cron', () => ({
-      schedule: mockSchedule
-    }));
+    const mockSchedule = vi
+      .fn()
+      .mockImplementation((schedule: string, callback: () => Promise<void>) => {
+        cronCallback = callback;
+        return mockTask;
+      });
 
     const mockResult: FetchAllResult = {
       data: [],
       errors: [],
-      count: 0
+      count: 0,
     };
 
     const mockFetchAllDependabotPRs = vi.fn().mockResolvedValue(mockResult);
     const mockOnSuccess = vi.fn();
 
-    vi.doMock('../../src/utils/gitHubHelpers.js', () => ({
-      fetchAllDependabotPRs: mockFetchAllDependabotPRs
+    // Mock both modules before importing
+    vi.doMock('node-cron', () => ({
+      schedule: mockSchedule,
     }));
 
-    const { createScheduler } = await import('../utils/functions/testImplementations.js');
+    vi.doMock('../../src/utils/gitHubHelpers.js', () => ({
+      fetchAllDependabotPRs: mockFetchAllDependabotPRs,
+    }));
+
+    // Import after mocking
+    const { createScheduler } = await import(
+      '../utils/functions/testImplementations.js'
+    );
 
     const config = {
       cronSchedule: '0 7 * * *',
       auth: {
         GITHUB_APP_ID: 'test-app',
         GITHUB_PRIVATE_KEY: 'test-key',
-        GITHUB_INSTALLATION_ID: 'test-install'
+        GITHUB_INSTALLATION_ID: 'test-install',
       },
       owner: 'test-owner',
       repos: ['repo1'],
       onSuccess: mockOnSuccess,
-      maxRetries: 2
+      maxRetries: 2,
     };
 
-    createScheduler(config);
+    await createScheduler(config);
+
+    // Verify that cronCallback was set
+    expect(cronCallback).toBeDefined();
+    expect(typeof cronCallback).toBe('function');
 
     // Manually trigger the cron callback
     await cronCallback!();
@@ -288,7 +301,7 @@ describe('createScheduler', () => {
     expect(mockFetchAllDependabotPRs).toHaveBeenCalledWith(
       config.auth,
       'test-owner',
-      ['repo1']
+      ['repo1'],
     );
     expect(mockOnSuccess).toHaveBeenCalledWith(mockResult);
   });
