@@ -44,16 +44,3 @@ export interface PRdto {
   createdAt: string;
   updatedAt: string;
 }
-
-export interface DependabotPR {
-  id: number;
-  title: string;
-  html_url: string;
-  head?: {
-    repo?: {
-      name: string;
-    } | null;
-  } | null;
-  created_at: string;
-  updated_at: string;
-}

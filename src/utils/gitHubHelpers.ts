@@ -1,8 +1,8 @@
 
-import type { AuthConfig } from "../types/auth.js";
-import { createAppAuth } from "@octokit/auth-app";
-import { Octokit } from "@octokit/rest";
-import { DependabotPR, PRdto, FetchAllResult, RepoError } from "../types/gitHubTypes.js";
+import type { AuthConfig } from '../types/auth.js';
+import { createAppAuth } from '@octokit/auth-app';
+import { Octokit } from '@octokit/rest';
+import { DependabotPR, PRdto, FetchAllResult, RepoError } from '../types/gitHubTypes.js';
 
 export function toPRdto(pr: DependabotPR): PRdto {
   return {
@@ -22,7 +22,7 @@ export async function getGitHubToken(config: AuthConfig): Promise<string> {
   });
 
   const { token } = await auth({
-    type: "installation",
+    type: 'installation',
     installationId: config.GITHUB_INSTALLATION_ID,
   });
   
@@ -39,10 +39,10 @@ export async function fetchDependabotPRs(
   const { data } = await octokit.pulls.list({
     owner,
     repo,
-    state: "open",
+    state: 'open',
   });
 
-  return data.filter(pr => pr.user?.login === 'dependabot[bot]');
+  return data.filter(pr => pr.user?.login === 'dependabot[bot]') as DependabotPR[];
 }
 
 export async function fetchAllDependabotPRs(

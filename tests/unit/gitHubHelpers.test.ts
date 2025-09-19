@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { toPRdto } from '../utils/testFunctions/testImplementations.js';
-import { createTestMockPR } from '../utils/testFunctions/helperFunctions.js'
+import { createTestMockPR } from '../utils/testFunctions/helperFunctions.js';
 
 describe('toPRdto', () => {
   it('should transform a complete GitHub PR to PRdto format', () => {
