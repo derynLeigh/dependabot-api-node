@@ -44,3 +44,10 @@ export interface PRdto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface SchedulerConfig {
+    cronSchedule: string;
+    outputPath?: string;
+    onSuccess?: (result: FetchAllResult) => Promise<void>;
+    onError?: (error: Error) => Promise<void>;
+}
