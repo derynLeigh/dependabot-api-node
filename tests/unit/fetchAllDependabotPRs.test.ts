@@ -76,49 +76,48 @@ describe('fetchAllDependabotPRs', () => {
   });
 
   it('should handle repositories with no PRs', async () => {
-  const mockGetToken = vi.fn().mockResolvedValue('test-token');
-  const mockFetchPRs = vi.fn()
-    .mockResolvedValueOnce([])
-    .mockResolvedValueOnce([createTestMockPR({ id: 2, title: 'Repo2 PR' })]);
+    const mockGetToken = vi.fn().mockResolvedValue('test-token');
+    const mockFetchPRs = vi.fn()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([createTestMockPR({ id: 2, title: 'Repo2 PR' })]);
 
-  const result = await fetchAllDependabotPRs(
-    mockConfig, 
-    'owner', 
-    ['repo1', 'repo2'],
-    mockGetToken,
-    mockFetchPRs
-  );
+    const result = await fetchAllDependabotPRs(
+      mockConfig, 
+      'owner', 
+      ['repo1', 'repo2'],
+      mockGetToken,
+      mockFetchPRs
+    );
 
-  expect(mockFetchPRs).toHaveBeenCalledTimes(2);
-  
-  expect(result).toEqual({
-    data: [
-      expect.objectContaining({ id: 2, title: 'Repo2 PR' })
-    ],
-    errors: [],
-    count: 1
+    expect(mockFetchPRs).toHaveBeenCalledTimes(2);
+    
+    expect(result).toEqual({
+      data: [
+        expect.objectContaining({ id: 2, title: 'Repo2 PR' })
+      ],
+      errors: [],
+      count: 1
+    });
   });
-});
+  it('should handle all repositories having no PRs', async () => {
+    const mockGetToken = vi.fn().mockResolvedValue('test-token');
+    const mockFetchPRs = vi.fn()
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
 
-it('should handle all repositories having no PRs', async () => {
-  const mockGetToken = vi.fn().mockResolvedValue('test-token');
-  const mockFetchPRs = vi.fn()
-    .mockResolvedValueOnce([])
-    .mockResolvedValueOnce([]);
+    const result = await fetchAllDependabotPRs(
+      mockConfig, 
+      'owner', 
+      ['repo1', 'repo2'],
+      mockGetToken,
+      mockFetchPRs
+    );
 
-  const result = await fetchAllDependabotPRs(
-    mockConfig, 
-    'owner', 
-    ['repo1', 'repo2'],
-    mockGetToken,
-    mockFetchPRs
-  );
-
-  expect(result).toEqual({
-    data: [],
-    errors: [],
-    count: 0
+    expect(result).toEqual({
+      data: [],
+      errors: [],
+      count: 0
+    });
   });
-});
 });
 
