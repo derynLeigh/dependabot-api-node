@@ -14,3 +14,15 @@ export interface PRdto {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface RepoError {
+  repo: string;
+  error: string;
+  code?: string;
+}
+
+export interface FetchAllResult {
+  data: PRdto[];
+  errors: RepoError[];
+  count: number;
+}

@@ -1,30 +1,35 @@
 import { describe, it, expect } from 'vitest';
-import { toPRdto } from '../../src/utils/gitHubHelpers.js'; // Note the .js extension
-import { createMockPR } from '../utils/helperFunctions.js';
+import { toPRdto } from '../utils/testFunctions/testImplementations.js';
+import { createTestMockPR } from '../utils/testFunctions/helperFunctions.js';
 
-describe('DTO transformation', () => {
-  it('Transforms a Github PR to DTO format', () => {
-    const mockPR = createMockPR();
-    const result = toPRdto(mockPR);
-
-    expect(result.id).toBe(mockPR.id);
-    expect(result.title).toBe(mockPR.title);
-    expect(result.url).toBe(mockPR.html_url);
-    expect(result.repo).toBe(mockPR.head.repo.name);
-    expect(result.createdAt).toBe(mockPR.created_at);
-    expect(result.updatedAt).toBe(mockPR.updated_at);
-  });
-
-  it('Handles missing data', () => {
-    const incompleteMockPR = createMockPR({
-      id: 2,
-      title: 'Incomplete PR',
-      head: { repo: null },
+describe('toPRdto', () => {
+  it('should transform a complete GitHub PR to PRdto format', () => {
+    const githubPR = createTestMockPR({
+      id: 123,
+      title: 'Bump typescript from 5.0.0 to 5.1.0',
+      html_url: 'https://github.com/owner/repo/pull/123',
     });
 
-    const result = toPRdto(incompleteMockPR);
+    const result = toPRdto(githubPR);
 
-    expect(result.id).toBe(incompleteMockPR.id);
+    expect(result).toEqual({
+      id: 123,
+      title: 'Bump typescript from 5.0.0 to 5.1.0',
+      url: 'https://github.com/owner/repo/pull/123',
+      repo: 'mock-repo', // from the default
+      createdAt: '2025-09-01T10:00:00Z',
+      updatedAt: '2025-09-01T11:00:00Z'
+    });
+  });
+
+  it('should handle missing repo data gracefully', () => {
+    const githubPR = createTestMockPR({
+      id: 456,
+      title: 'Update dependency',
+      head: null
+    });
+
+    const result = toPRdto(githubPR);
     expect(result.repo).toBe('');
   });
 });

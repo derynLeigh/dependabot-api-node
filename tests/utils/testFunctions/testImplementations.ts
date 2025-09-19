@@ -1,8 +1,4 @@
-
-import type { AuthConfig } from '../types/auth.js';
-import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/rest';
-import { DependabotPR, PRdto, FetchAllResult, RepoError } from '../types/gitHubTypes.js';
+import type { AuthConfig, RepoError, FetchAllResult, PRdto, DependabotPR } from '../types/testTypes.js';
 
 export function toPRdto(pr: DependabotPR): PRdto {
   return {
@@ -15,49 +11,21 @@ export function toPRdto(pr: DependabotPR): PRdto {
   };
 }
 
-export async function getGitHubToken(config: AuthConfig): Promise<string> {
-  const auth = createAppAuth({
-    appId: config.GITHUB_APP_ID,
-    privateKey: config.GITHUB_PRIVATE_KEY,
-  });
-
-  const { token } = await auth({
-    type: 'installation',
-    installationId: config.GITHUB_INSTALLATION_ID,
-  });
-  
-  return token;
-}
-
-export async function fetchDependabotPRs(
-  token: string,
-  owner: string,
-  repo: string
-): Promise<DependabotPR[]> {
-  const octokit = new Octokit({ auth: token });
-
-  const { data } = await octokit.pulls.list({
-    owner,
-    repo,
-    state: 'open',
-  });
-
-  return data.filter(pr => pr.user?.login === 'dependabot[bot]') as DependabotPR[];
-}
-
 export async function fetchAllDependabotPRs(
   config: AuthConfig,
   owner: string,
   repos: string[],
+  getToken: (config: AuthConfig) => Promise<string>,
+  fetchPRs: (token: string, owner: string, repo: string) => Promise<DependabotPR[]>
 ): Promise<FetchAllResult> {
-  const token = await getGitHubToken(config);
+  const token = await getToken(config);
   const errors: RepoError[] = [];
   const allPRs: PRdto[] = [];
 
   const results = await Promise.allSettled(
     repos.map(async (repo) => {
       try {
-        const prs = await fetchDependabotPRs(token, owner, repo);
+        const prs = await fetchPRs(token, owner, repo);
         return prs.map(toPRdto);
       } catch (err) {
         const error = err instanceof Error ? err.message : 'Unknown error occurred';
