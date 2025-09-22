@@ -5,6 +5,9 @@ import { fetchAllDependabotPRs } from './utils/gitHubHelpers.js';
 import { Server } from 'http';
 import { createScheduler } from './utils/scheduler.js';
 import { getSchedulerConfig } from './utils/schedulerConfig.js';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
 
@@ -89,7 +92,11 @@ export function startServer(): Server {
   const app = createApp();
   const server = app.listen(PORT, async () => {
     console.log(`Server is running on http://localhost:${PORT}`);
-    await startScheduler(); // Start scheduler after server is ready
+    await startScheduler();
   });
   return server;
+}
+
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
 }

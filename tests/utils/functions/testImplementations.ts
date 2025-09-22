@@ -1,17 +1,19 @@
-import type { 
-  DependabotPR as TestDependabotPR, 
-  GitHubUser, 
-  AuthConfig, 
-  RepoError, 
-  FetchAllResult, 
-  PRdto, 
-  DependabotPR, 
+import type {
+  DependabotPR as TestDependabotPR,
+  GitHubUser,
+  AuthConfig,
+  RepoError,
+  FetchAllResult,
+  PRdto,
+  DependabotPR,
   ScheduledFetchOptions,
   ScheduledFetchWithRetryOptions,
   FullSchedulerConfig,
   CronTask,
   SchedulerControls
 } from '../types/testTypes.js';
+import { readFileSync, writeFileSync, existsSync, unlinkSync } from 'fs';
+import type { CacheStorage } from '../types/testTypes.js';
 
 export function toPRdto(pr: DependabotPR): PRdto {
   return {
@@ -65,12 +67,12 @@ export async function fetchAllDependabotPRs(
       } catch (err) {
         const error = err instanceof Error ? err.message : 'Unknown error occurred';
         console.error(`Failed to fetch PRs from repo "${repo}":`, err);
-        
+
         errors.push({
           repo,
           error,
         });
-        
+
         return [] as PRdto[];
       }
     }),
@@ -95,13 +97,13 @@ export async function executeScheduledFetch(
 ): Promise<void> {
   try {
     const result = await fetchAllDependabotPRs(options.config, options.owner, options.repos);
-    
+
     if (options.onSuccess) {
       await options.onSuccess(result);
     }
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Unknown error occurred');
-    
+
     if (options.onError) {
       await options.onError(err);
     } else {
@@ -117,21 +119,21 @@ export async function executeScheduledFetchWithRetry(
 ): Promise<void> {
   const maxRetries = options.maxRetries ?? 3;
   const retryDelay = options.retryDelay ?? 1000; // 1 second default
-  
+
   let lastError: Error;
-  
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const result = await fetchAllDependabotPRs(options.config, options.owner, options.repos);
-      
+
       if (options.onSuccess) {
         await options.onSuccess(result);
       }
       return;
-      
+
     } catch (error) {
       lastError = error instanceof Error ? error : new Error('Unknown error occurred');
-      
+
       if (attempt < maxRetries) {
         console.log(`Attempt ${attempt} failed, retrying in ${retryDelay}ms...`);
         // In tests, we can mock setTimeout or skip the delay
@@ -141,7 +143,7 @@ export async function executeScheduledFetchWithRetry(
       }
     }
   }
-  
+
   if (options.onError) {
     await options.onError(lastError!);
   } else {
@@ -151,12 +153,12 @@ export async function executeScheduledFetchWithRetry(
 
 export async function createScheduler(config: FullSchedulerConfig): Promise<SchedulerControls> {
   const cron = await import('node-cron');
-  
+
   const task: CronTask = cron.schedule(config.cronSchedule, async (): Promise<void> => {
     console.log(`[${new Date().toISOString()}] Starting scheduled Dependabot PR fetch...`);
-    
+
     const { fetchAllDependabotPRs } = await import('../../../src/utils/gitHubHelpers.js');
-    
+
     await executeScheduledFetchWithRetry({
       config: config.auth,
       owner: config.owner,
@@ -173,4 +175,86 @@ export async function createScheduler(config: FullSchedulerConfig): Promise<Sche
     stop: (): void => task.destroy(),
     start: (): void => task.start()
   };
+}
+
+export class CacheManager<T> {
+  private cacheFile: string;
+  private defaultTTL: number;
+
+  constructor(cacheFile: string, defaultTTL: number = 300000) {
+    // 5 minutes default
+    this.cacheFile = cacheFile;
+    this.defaultTTL = defaultTTL;
+  }
+
+  async get(key: string): Promise<T | null> {
+    try {
+      if (!existsSync(this.cacheFile)) {
+        return null;
+      }
+
+      const cacheData: CacheStorage<T> = JSON.parse(
+        readFileSync(this.cacheFile, 'utf8'),
+      );
+      const entry = cacheData[key];
+
+      if (!entry) {
+        return null;
+      }
+
+      // Check if expired
+      if (Date.now() - entry.timestamp > entry.ttl) {
+        await this.delete(key);
+        return null;
+      }
+
+      return entry.data;
+    } catch {
+      return null;
+    }
+  }
+
+  async set(key: string, data: T, ttl?: number): Promise<void> {
+    const actualTTL = ttl ?? this.defaultTTL;
+
+    let cacheData: CacheStorage<T> = {};
+
+    if (existsSync(this.cacheFile)) {
+      try {
+        cacheData = JSON.parse(readFileSync(this.cacheFile, 'utf8'));
+      } catch {
+        // File exists but is corrupted, start fresh
+      }
+    }
+
+    cacheData[key] = {
+      data,
+      timestamp: Date.now(),
+      ttl: actualTTL,
+    };
+
+    writeFileSync(this.cacheFile, JSON.stringify(cacheData, null, 2), 'utf8');
+  }
+
+  async delete(key: string): Promise<void> {
+    if (!existsSync(this.cacheFile)) {
+      return;
+    }
+
+    try {
+      const cacheData: CacheStorage = JSON.parse(
+        readFileSync(this.cacheFile, 'utf8'),
+      );
+      delete cacheData[key];
+      writeFileSync(this.cacheFile, JSON.stringify(cacheData, null, 2), 'utf8');
+    } catch {
+      // Ignore errors when cleaning up
+    }
+  }
+
+  async clear(): Promise<void> {
+    if (existsSync(this.cacheFile)) {
+      unlinkSync(this.cacheFile);
+    }
+  }
 }

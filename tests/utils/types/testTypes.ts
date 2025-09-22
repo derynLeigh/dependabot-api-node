@@ -46,10 +46,10 @@ export interface PRdto {
 }
 
 export interface SchedulerConfig {
-    cronSchedule: string;
-    outputPath?: string;
-    onSuccess?: (result: FetchAllResult) => Promise<void>;
-    onError?: (error: Error) => Promise<void>;
+  cronSchedule: string;
+  outputPath?: string;
+  onSuccess?: (result: FetchAllResult) => Promise<void>;
+  onError?: (error: Error) => Promise<void>;
 }
 
 export interface ScheduledFetchOptions {
@@ -86,4 +86,14 @@ export interface SchedulerControls {
   task: CronTask;
   stop: () => void;
   start: () => void;
+}
+
+export interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+  ttl: number;
+}
+
+export interface CacheStorage<T = unknown> {
+  [key: string]: CacheEntry<T>;
 }
