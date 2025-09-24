@@ -1,4 +1,18 @@
 import type { FullSchedulerConfig } from '../types/schedulerTypes.js';
+import { CacheManager } from './cache.js';
+import type { FetchAllResult } from '../types/gitHubTypes.js';
+
+export function createCacheWarmingHandler(
+  cache: CacheManager<FetchAllResult>,
+  owner: string,
+  repos: string[],
+) {
+  return async (result: FetchAllResult): Promise<void> => {
+    const cacheKey = `${owner}-${repos.join(',')}`;
+    await cache.set(cacheKey, result);
+    console.log(`Cache warmed for key: ${cacheKey}`);
+  };
+}
 
 export function getSchedulerConfig(): FullSchedulerConfig {
   const requiredEnvVars = {
