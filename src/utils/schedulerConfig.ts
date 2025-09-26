@@ -42,9 +42,11 @@ export function getSchedulerConfig(): FullSchedulerConfig {
     },
     owner: requiredEnvVars.GITHUB_OWNER!,
     repos: requiredEnvVars.GITHUB_REPOS!.split(',').map((r) => r.trim()),
-    maxRetries: process.env.MAX_RETRIES ? parseInt(process.env.MAX_RETRIES) : 3,
+    maxRetries: process.env.MAX_RETRIES
+      ? (isNaN(parseInt(process.env.MAX_RETRIES, 10)) ? 3 : parseInt(process.env.MAX_RETRIES, 10))
+      : 3,
     retryDelay: process.env.RETRY_DELAY
-      ? parseInt(process.env.RETRY_DELAY)
+      ? (isNaN(parseInt(process.env.RETRY_DELAY, 10)) ? 5000 : parseInt(process.env.RETRY_DELAY, 10))
       : 5000,
     outputPath: process.env.OUTPUT_PATH || './pr-summary.json',
   };
