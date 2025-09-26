@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { createTestMockPR, createTestMockUser } from '../utils/testFunctions/helperFunctions.js';
+import { createTestMockPR, createTestMockUser } from '../utils/functions/testImplementations.js';
 
 describe('fetchDependabotPRs', () => {
   beforeEach(() => {

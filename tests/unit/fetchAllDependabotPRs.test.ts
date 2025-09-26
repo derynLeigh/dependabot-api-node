@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { AuthConfig } from '../utils/types/testTypes';
-import { fetchAllDependabotPRs } from '../utils/testFunctions/testImplementations.js';
-import { createTestMockPR } from '../utils/testFunctions/helperFunctions.js';
+import { fetchAllDependabotPRs, createTestMockPR } from '../utils/functions/testImplementations.js';
 
 describe('fetchAllDependabotPRs', () => {
   const mockConfig: AuthConfig = {
