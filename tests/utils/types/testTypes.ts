@@ -62,7 +62,8 @@ export interface ScheduledFetchOptions {
 
 export interface ScheduledFetchWithRetryOptions extends ScheduledFetchOptions {
   maxRetries?: number;
-  retryDelay?: number; // milliseconds between retries
+  retryDelay?: number;
+  delayFn?: (ms: number) => Promise<void>;
 }
 
 export interface FullSchedulerConfig {

@@ -1,5 +1,5 @@
-import { AuthConfig } from "./auth.js";
-import { FetchAllResult } from "./gitHubTypes.js";
+import { AuthConfig } from './auth.js';
+import { FetchAllResult } from './gitHubTypes.js';
 
 export interface ScheduledFetchOptions {
   config: AuthConfig;

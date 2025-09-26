@@ -1,5 +1,5 @@
 import { fetchAllDependabotPRs } from './gitHubHelpers.js';
-import { writeFileSync, readFileSync } from 'fs'; // Add readFileSync import
+import { writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import type {
   ScheduledFetchOptions,
@@ -41,8 +41,6 @@ export async function executeScheduledFetchWithRetry(
   const maxRetries = options.maxRetries ?? 3;
   const retryDelay = options.retryDelay ?? 1000;
 
-  let lastError: Error;
-
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       const result = await fetchAllDependabotPRs(
@@ -56,7 +54,7 @@ export async function executeScheduledFetchWithRetry(
       }
       return;
     } catch (error) {
-      lastError =
+      const currentError =
         error instanceof Error ? error : new Error('Unknown error occurred');
 
       if (attempt < maxRetries) {
@@ -64,21 +62,21 @@ export async function executeScheduledFetchWithRetry(
           `Attempt ${attempt} failed, retrying in ${retryDelay}ms...`,
         );
         await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      } else {
+        if (options.onError) {
+          await options.onError(currentError);
+        } else {
+          console.error(
+            `Scheduled fetch failed after ${maxRetries} attempts:`,
+            currentError.message,
+          );
+        }
+        return;
       }
     }
   }
-
-  if (options.onError) {
-    await options.onError(lastError!);
-  } else {
-    console.error(
-      `Scheduled fetch failed after ${maxRetries} attempts:`,
-      lastError!.message,
-    );
-  }
 }
 
-// File storage handler
 export function createFileStorageHandler(outputPath: string) {
   return async (result: FetchAllResult): Promise<void> => {
     const summary = {
@@ -100,7 +98,6 @@ export function createFileStorageHandler(outputPath: string) {
   };
 }
 
-// Error logging handler
 export function createErrorHandler(logPath?: string) {
   return async (error: Error): Promise<void> => {
     const timestamp = new Date().toISOString();
@@ -132,7 +129,6 @@ export async function createScheduler(
 ): Promise<SchedulerControls> {
   const cron = await import('node-cron');
 
-  // Create storage handlers if outputPath is provided
   const onSuccess =
     config.onSuccess ||
     (config.outputPath

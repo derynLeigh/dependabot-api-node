@@ -115,39 +115,51 @@ export async function executeScheduledFetch(
 
 export async function executeScheduledFetchWithRetry(
   options: ScheduledFetchWithRetryOptions,
-  fetchAllDependabotPRs: (config: AuthConfig, owner: string, repos: string[]) => Promise<FetchAllResult>
+  fetchAllDependabotPRs: (
+    config: AuthConfig,
+    owner: string,
+    repos: string[],
+  ) => Promise<FetchAllResult>,
 ): Promise<void> {
   const maxRetries = options.maxRetries ?? 3;
-  const retryDelay = options.retryDelay ?? 1000; // 1 second default
-
-  let lastError: Error;
+  const retryDelay = options.retryDelay ?? 1000;
+  const delayFn =
+    options.delayFn ??
+    ((ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms)));
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      const result = await fetchAllDependabotPRs(options.config, options.owner, options.repos);
+      const result = await fetchAllDependabotPRs(
+        options.config,
+        options.owner,
+        options.repos,
+      );
 
       if (options.onSuccess) {
         await options.onSuccess(result);
       }
       return;
-
     } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error occurred');
+      const currentError =
+        error instanceof Error ? error : new Error('Unknown error occurred');
 
       if (attempt < maxRetries) {
-        console.log(`Attempt ${attempt} failed, retrying in ${retryDelay}ms...`);
-        // In tests, we can mock setTimeout or skip the delay
-        if (process.env.NODE_ENV !== 'test') {
-          await new Promise(resolve => setTimeout(resolve, retryDelay));
+        console.log(
+          `Attempt ${attempt} failed, retrying in ${retryDelay}ms...`,
+        );
+        await delayFn(retryDelay);
+      } else {
+        if (options.onError) {
+          await options.onError(currentError);
+        } else {
+          console.error(
+            `Scheduled fetch failed after ${maxRetries} attempts:`,
+            currentError.message,
+          );
         }
+        return;
       }
     }
-  }
-
-  if (options.onError) {
-    await options.onError(lastError!);
-  } else {
-    console.error(`Scheduled fetch failed after ${maxRetries} attempts:`, lastError!.message);
   }
 }
 
