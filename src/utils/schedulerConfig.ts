@@ -33,6 +33,13 @@ export function getSchedulerConfig(): FullSchedulerConfig {
     );
   }
 
+  // Helper function to parse integer env vars with defaults
+  const parseIntWithDefault = (envVar: string | undefined, defaultValue: number): number => {
+    if (!envVar) return defaultValue;
+    const parsed = parseInt(envVar, 10);
+    return isNaN(parsed) ? defaultValue : parsed;
+  };
+
   return {
     cronSchedule: process.env.CRON_SCHEDULE || '0 7 * * *', // Default: 7 AM daily
     auth: {
@@ -42,12 +49,8 @@ export function getSchedulerConfig(): FullSchedulerConfig {
     },
     owner: requiredEnvVars.GITHUB_OWNER!,
     repos: requiredEnvVars.GITHUB_REPOS!.split(',').map((r) => r.trim()),
-    maxRetries: process.env.MAX_RETRIES
-      ? (isNaN(parseInt(process.env.MAX_RETRIES, 10)) ? 3 : parseInt(process.env.MAX_RETRIES, 10))
-      : 3,
-    retryDelay: process.env.RETRY_DELAY
-      ? (isNaN(parseInt(process.env.RETRY_DELAY, 10)) ? 5000 : parseInt(process.env.RETRY_DELAY, 10))
-      : 5000,
+    maxRetries: parseIntWithDefault(process.env.MAX_RETRIES, 3),
+    retryDelay: parseIntWithDefault(process.env.RETRY_DELAY, 5000),
     outputPath: process.env.OUTPUT_PATH || './pr-summary.json',
   };
 }

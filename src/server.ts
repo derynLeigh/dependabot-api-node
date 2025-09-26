@@ -14,13 +14,12 @@ dotenv.config();
 const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
 
 const cacheTTL = process.env.CACHE_TTL_MS
-  ? (() => {
+  ? ((): number => {
       const parsed = parseInt(process.env.CACHE_TTL_MS as string, 10);
       return Number.isNaN(parsed) ? 300000 : parsed;
     })()
   : 300000;
 const prCache = new CacheManager<FetchAllResult>('./pr-cache.json', cacheTTL);
-
 
 function getEnvConfig(): AuthConfig {
   const config: AuthConfig = {
@@ -39,7 +38,6 @@ function getEnvConfig(): AuthConfig {
 
   return config;
 }
-
 
 export function createApp(): express.Express {
   const app = express();
