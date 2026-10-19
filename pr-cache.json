@@ -1,0 +1,68 @@
+{
+  "derynLeigh-techronymsService,techronyms-user-service,dependabot-pr-summariser": {
+    "data": {
+      "data": [
+        {
+          "id": 4923057506,
+          "title": "Bump gradle-wrapper from 9.3.0 to 9.8.1",
+          "url": "https://github.com/derynLeigh/techronymsService/pull/27",
+          "repo": "techronymsService",
+          "createdAt": "2026-10-19T15:04:39Z",
+          "updatedAt": "2026-10-19T15:04:44Z"
+        },
+        {
+          "id": 4923054161,
+          "title": "Bump org.springframework.boot from 4.0.2 to 4.1.1",
+          "url": "https://github.com/derynLeigh/techronymsService/pull/26",
+          "repo": "techronymsService",
+          "createdAt": "2026-10-19T15:04:24Z",
+          "updatedAt": "2026-10-19T15:04:29Z"
+        },
+        {
+          "id": 4923053058,
+          "title": "Bump com.mysql:mysql-connector-j from 9.5.0 to 26.7.0",
+          "url": "https://github.com/derynLeigh/techronymsService/pull/25",
+          "repo": "techronymsService",
+          "createdAt": "2026-10-19T15:04:20Z",
+          "updatedAt": "2026-10-19T15:04:25Z"
+        },
+        {
+          "id": 4923052185,
+          "title": "Bump org.modelmapper:modelmapper from 3.2.6 to 3.2.7",
+          "url": "https://github.com/derynLeigh/techronymsService/pull/24",
+          "repo": "techronymsService",
+          "createdAt": "2026-10-19T15:04:16Z",
+          "updatedAt": "2026-10-19T15:04:20Z"
+        },
+        {
+          "id": 4923051206,
+          "title": "Bump org.springframework.boot:spring-boot-starter-validation from 4.0.2 to 4.1.1",
+          "url": "https://github.com/derynLeigh/techronymsService/pull/23",
+          "repo": "techronymsService",
+          "createdAt": "2026-10-19T15:04:11Z",
+          "updatedAt": "2026-10-19T15:04:16Z"
+        },
+        {
+          "id": 4919871341,
+          "title": "Bump axios from 1.12.2 to 1.20.0",
+          "url": "https://github.com/derynLeigh/dependabot-pr-summariser/pull/13",
+          "repo": "dependabot-pr-summariser",
+          "createdAt": "2026-10-19T10:59:33Z",
+          "updatedAt": "2026-10-19T10:59:36Z"
+        },
+        {
+          "id": 2872695457,
+          "title": "Bump @octokit/auth-app from 8.1.0 to 8.1.1",
+          "url": "https://github.com/derynLeigh/dependabot-pr-summariser/pull/10",
+          "repo": "dependabot-pr-summariser",
+          "createdAt": "2025-09-30T03:00:48Z",
+          "updatedAt": "2026-10-19T16:24:51Z"
+        }
+      ],
+      "errors": [],
+      "count": 7
+    },
+    "timestamp": 1792435732229,
+    "ttl": 300000
+  }
+}
