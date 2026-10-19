@@ -11,7 +11,7 @@ import type { FetchAllResult } from './types/gitHubTypes.js';
 
 dotenv.config();
 
-const PORT = process.env.PORT ? Number(process.env.PORT) : 8080;
+const PORT = process.env.PORT ? Number(process.env.PORT) : 8081;
 
 const cacheTTL = process.env.CACHE_TTL_MS
   ? ((): number => {

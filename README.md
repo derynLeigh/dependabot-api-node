@@ -26,7 +26,7 @@ Environment variables are read from `.env` via `dotenv`.
 | `GITHUB_INSTALLATION_ID` | Yes | — | Installation ID of the app on the target owner. |
 | `GITHUB_OWNER` | Scheduler only | `derynLeigh` (`/api/prs` only) | User or organization that owns the repositories. |
 | `GITHUB_REPOS` | Scheduler only | Built-in list (`/api/prs` only) | Comma-separated repository names, e.g. `repo-a,repo-b`. |
-| `PORT` | No | `8080` | HTTP port. |
+| `PORT` | No | `8081` | HTTP port. |
 | `CACHE_TTL_MS` | No | `300000` (5 min) | How long a cached result stays valid, in milliseconds. |
 | `ENABLE_SCHEDULER` | No | `false` | Set to `true` to start the cron job on server start. |
 | `CRON_SCHEDULE` | No | `0 7 * * *` (7 AM daily) | Cron expression for scheduled fetches. |
@@ -50,7 +50,7 @@ npm start
 
 `npm run build` runs ESLint first (via `prebuild`), so lint errors will stop the build.
 
-Once running, the server logs its address (default `http://localhost:8080`).
+Once running, the server logs its address (default `http://localhost:8081`).
 
 ## API
 
@@ -59,7 +59,7 @@ Once running, the server logs its address (default `http://localhost:8080`).
 Returns open Dependabot pull requests across the configured repositories.
 
 ```bash
-curl http://localhost:8080/api/prs
+curl http://localhost:8081/api/prs
 ```
 
 ```json
@@ -95,7 +95,7 @@ curl http://localhost:8080/api/prs
 Deletes the cache file. The next `GET /api/prs` fetches fresh data from GitHub.
 
 ```bash
-curl -X DELETE http://localhost:8080/api/cache
+curl -X DELETE http://localhost:8081/api/cache
 ```
 
 ## Caching and scheduled fetches
